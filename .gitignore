@@ -1,3 +1,5 @@
+app/data/r_dataisbeautiful_posts.csv
+
 ### Diff template
 *.patch
 *.diff
@@ -2951,15 +2953,15 @@ config/autoload/*.local.php
 *.mo
 
 # Data
-data/logs/
-data/cache/
-data/sessions/
-data/tmp/
+app/data/logs/
+app/data/cache/
+app/data/sessions/
+app/data/tmp/
 temp/
 
 #Doctrine 2
-data/DoctrineORMModule/Proxy/
-data/DoctrineORMModule/cache/
+app/data/DoctrineORMModule/Proxy/
+app/data/DoctrineORMModule/cache/
 
 # Legacy ZF1
 demos/
@@ -5417,7 +5419,7 @@ EIFGENs
 devdata.db
 
 # Default data directory
-data/*
+app/data/*
 
 # Packages
 *.egg
