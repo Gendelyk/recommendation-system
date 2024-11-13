@@ -14,25 +14,24 @@ class EmbeddingModel:
         self.initialize_embeddings()
 
     def initialize_embeddings(self):
-        # Шлях до директорії для збереження ембеддінгів та індексу
         data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         os.makedirs(data_dir, exist_ok=True)
         embeddings_path = os.path.join(data_dir, 'embeddings.pkl')
         index_path = os.path.join(data_dir, 'faiss_index.index')
 
-        text_column = 'title'  # Переконайтеся, що назва стовпця правильна
+        text_column = 'title'
 
-        # Видаляємо рядки з NaN та скидаємо індекси
         self.df = self.df.dropna(subset=[text_column]).reset_index(drop=True)
 
         if os.path.exists(embeddings_path) and os.path.exists(index_path):
             with open(embeddings_path, 'rb') as f:
                 self.embeddings = pickle.load(f)
             self.index = faiss.read_index(index_path)
-            logging.info("Завантажено ембеддінги та індекс з диску.")
+            logging.info("Loaded faiss index")
         else:
-            logging.info("Генерація нових ембеддінгів...")
+            logging.info("Generating faiss index")
             sentences = self.df[text_column].astype(str).tolist()
+            logging.info(f"Quantity of emp {len(sentences)}")
             self.embeddings = self.model.encode(sentences, show_progress_bar=True)
             with open(embeddings_path, 'wb') as f:
                 pickle.dump(self.embeddings, f)
@@ -40,4 +39,4 @@ class EmbeddingModel:
             self.index = faiss.IndexFlatL2(embeddings_np.shape[1])
             self.index.add(embeddings_np)
             faiss.write_index(self.index, index_path)
-            logging.info("Ембеддінги та індекс збережено на диск.")
+            logging.info("All saved faiss index")

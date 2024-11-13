@@ -10,33 +10,19 @@ class Recommender:
         self.embeddings = embedding_model.embeddings
         self.index = embedding_model.index
 
-    def search_articles(self, query, top_n=3):
+    def recommend_by_title(self, title, top_n=3):
         try:
-            query_embedding = self.model.encode([query])
-            distances, indices = self.index.search(np.array(query_embedding).astype('float32'), top_n)
-            results = self.df.iloc[indices[0]].copy()
-            results['distance'] = distances[0]
-            return results.reset_index(drop=True)
-        except Exception as e:
-            logging.error(f"Помилка під час пошуку: {e}")
-            return pd.DataFrame()
-
-    def recommend_similar_articles(self, article_id, top_n=3):
-        try:
-            # Знаходимо позицію статті в DataFrame
-            article_idx = self.df[self.df['id'] == article_id].index
-            if len(article_idx) == 0:
-                logging.error(f"Статтю з ID {article_id} не знайдено.")
-                return pd.DataFrame()
-            article_idx = article_idx[0]
-            distances, indices = self.index.search(self.embeddings[article_idx].reshape(1, -1), top_n + 1)
-            # Виключаємо саму статтю
-            indices = indices[0][1:]
-            distances = distances[0][1:]
+            logging.info(f"Start finding for {title}")
+            query_embedding = self.model.encode([title])
+            distances, indices = self.index.search(np.array(query_embedding).astype('float32'), top_n + 1)
+            indices = indices[0]
+            distances = distances[0]
             results = self.df.iloc[indices].copy()
-            results['distance'] = distances
+            results = results[results['title'] != title]
+            results = results.head(top_n)
+            results['distance'] = distances[:len(results)]
+            logging.info(f"Find {len(results)} recs.")
             return results.reset_index(drop=True)
         except Exception as e:
-            logging.error(f"Помилка під час рекомендації: {e}")
+            logging.error(f"Error: {e}")
             return pd.DataFrame()
-
